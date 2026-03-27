@@ -45,7 +45,7 @@ class PartnerModelPrefixes(str, Enum):
 
 class VertexAIPartnerModels(VertexBase):
     def __init__(self) -> None:
-        pass
+        self._cached_vertex_llm = None
 
     @staticmethod
     def is_vertex_partner_model(model: str):
@@ -133,7 +133,9 @@ class VertexAIPartnerModels(VertexBase):
                 message="""Upgrade vertex ai. Run `pip install "google-cloud-aiplatform>=1.38"`""",
             )
         try:
-            vertex_httpx_logic = VertexLLM()
+            if self._cached_vertex_llm is None:
+                self._cached_vertex_llm = VertexLLM()
+            vertex_httpx_logic = self._cached_vertex_llm
 
             access_token, project_id = vertex_httpx_logic._ensure_access_token(
                 credentials=vertex_credentials,
